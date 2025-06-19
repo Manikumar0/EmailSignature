@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Signature Generator (Full Version)</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
+  .form-container {
+    background: #fff; padding: 20px; border-radius: 10px; max-width: 700px; margin: auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .form-group { margin-bottom: 12px; }
+  label {
+    display: block; margin-bottom: 4px; font-weight: bold; color: #333;
+  }
+  input, textarea {
+    width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;
+  }
+  button {
+    padding: 10px 20px; background-color: #0077b5; color: #fff; border: none; border-radius: 5px; cursor: pointer;
+  }
+  .signature {
+    background: #fff; padding: 15px; border-radius: 10px; margin: 20px auto; max-width: 700px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .signature img { border-radius: 50%; width: 80px; height: 80px; object-fit: cover; }
+  .company-logo { width: 100px; height: auto; margin-bottom: 5px; }
+  .signature-name { font-size: 18px; font-weight: bold; }
+  .signature-role { color: gray; font-size: 14px; }
+  .social-icons img {
+    width: 20px; height: 20px; margin-right: 6px; vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2>Email Signature Generator</h2>
+
+  <div class="form-group"><label for="name">Name</label><input type="text" id="name" placeholder="Full Name"></div>
+  <div class="form-group"><label for="position">Position (e.g., QA Engineer)</label><input type="text" id="position" placeholder="Position"></div>
+  <div class="form-group"><label for="phone">Phone Number</label><input type="text" id="phone" placeholder="Phone Number"></div>
+  <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" placeholder="Email Address"></div>
+  <div class="form-group"><label for="linkedin">LinkedIn Profile URL</label><input type="url" id="linkedin" placeholder="LinkedIn URL"></div>
+  <div class="form-group"><label for="resume">Resume URL</label><input type="url" id="resume" placeholder="Resume URL"></div>
+  <div class="form-group"><label for="photo">Upload Profile Photo</label><input type="file" id="photo" accept="image/*"></div>
+  <div class="form-group"><label for="companyLogo">Company Logo</label><input type="file" id="companyLogo" accept="image/*"></div>
+  <div class="form-group"><label for="companyWebsite">Company Website</label><input type="url" id="companyWebsite" placeholder="Company Website URL"></div>
+  <div class="form-group"><label for="address">Company Address or Location</label><textarea id="address" rows="2" placeholder="Address/Location"></textarea></div>
+  <div class="form-group"><label for="facebook">Facebook URL</label><input type="url" id="facebook" placeholder="Facebook URL"></div>
+  <div class="form-group"><label for="twitter">Twitter URL</label><input type="url" id="twitter" placeholder="Twitter URL"></div>
+  <div class="form-group"><label for="instagram">Instagram URL</label><input type="url" id="instagram" placeholder="Instagram URL"></div>
+  <div class="form-group"><label for="tagline">Tagline or Favorite Quote</label><input type="text" id="tagline" placeholder="e.g., Delivering Quality First!"></div>
+  <div class="form-group"><label for="meetingLink">Meeting Scheduler Link (Calendly, etc.)</label><input type="url" id="meetingLink" placeholder="Meeting Scheduler URL"></div>
+
+  <button onclick="generateSignature()">Generate Signature</button>
+</div>
+
+<div id="signature" class="signature" style="display:none;"></div>
+<button onclick="copySignature()" style="display:none; margin: 10px auto;" id="copyBtn">Copy to Clipboard</button>
+
+<script>
+  function generateSignature() {
+    const name = document.getElementById('name').value.trim();
+    const position = document.getElementById('position').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const linkedin = document.getElementById('linkedin').value.trim();
+    const resume = document.getElementById('resume').value.trim();
+    const photoInput = document.getElementById('photo');
+    const companyLogoInput = document.getElementById('companyLogo');
+    const companyWebsite = document.getElementById('companyWebsite').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const facebook = document.getElementById('facebook').value.trim();
+    const twitter = document.getElementById('twitter').value.trim();
+    const instagram = document.getElementById('instagram').value.trim();
+    const tagline = document.getElementById('tagline').value.trim();
+    const meetingLink = document.getElementById('meetingLink').value.trim();
+
+    const icons = {
+      facebook: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg',
+      twitter: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg',
+      instagram: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg',
+      linkedin: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg',
+      resume: 'https://cdn-icons-png.flaticon.com/512/2991/2991106.png',
+      meeting: 'https://cdn-icons-png.flaticon.com/512/992/992651.png'
+    };
+
+    const readFileAsDataURL = (file) => {
+      return new Promise((resolve, reject) => {
+        if (!file) return resolve(null);
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
+
+    Promise.all([
+      readFileAsDataURL(photoInput.files[0]),
+      readFileAsDataURL(companyLogoInput.files[0])
+    ]).then(([photoURL, logoURL]) => {
+      let html = `<table cellpadding="5" cellspacing="0"><tr>`;
+      if (photoURL) html += `<td><img src="${photoURL}" alt="Profile Picture"></td>`;
+      html += `<td>`;
+      if (logoURL) html += `<img src="${logoURL}" class="company-logo" alt="Company Logo"><br>`;
+      if (name) html += `<div class="signature-name">${name}</div>`;
+      if (position) html += `<div class="signature-role">${position}</div>`;
+      if (phone) html += `<div>📞 ${phone}</div>`;
+      if (email) html += `<div>📧 <a href="mailto:${email}">${email}</a></div>`;
+      if (companyWebsite) html += `<div>🌐 <a href="${companyWebsite}" target="_blank">${companyWebsite}</a></div>`;
+      if (address) html += `<div>📍 ${address}</div>`;
+
+      html += `<div class="social-icons" style="margin-top:8px;">`;
+      if (linkedin) html += `<a href="${linkedin}" target="_blank" title="LinkedIn"><img src="${icons.linkedin}" alt="LinkedIn" /></a>`;
+      if (resume) html += `<a href="${resume}" target="_blank" title="Resume"><img src="${icons.resume}" alt="Resume" /></a>`;
+      if (facebook) html += `<a href="${facebook}" target="_blank" title="Facebook"><img src="${icons.facebook}" alt="Facebook" /></a>`;
+      if (twitter) html += `<a href="${twitter}" target="_blank" title="Twitter"><img src="${icons.twitter}" alt="Twitter" /></a>`;
+      if (instagram) html += `<a href="${instagram}" target="_blank" title="Instagram"><img src="${icons.instagram}" alt="Instagram" /></a>`;
+      if (meetingLink) html += `<a href="${meetingLink}" target="_blank" title="Schedule Meeting"><img src="${icons.meeting}" alt="Meeting" /></a>`;
+      html += `</div>`;
+
+      if (tagline) html += `<div style="margin-top:8px; font-style:italic;">"${tagline}"</div>`;
+      html += `</td></tr></table>`;
+
+      const sig = document.getElementById('signature');
+      sig.innerHTML = html;
+      sig.style.display = 'block';
+      document.getElementById('copyBtn').style.display = 'block';
+    });
+  }
+
+  function copySignature() {
+    const signatureHTML = document.getElementById('signature').innerHTML;
+    const blob = new Blob([signatureHTML], { type: 'text/html' });
+    const data = [new ClipboardItem({ "text/html": blob })];
+    navigator.clipboard.write(data).then(() => {
+      alert('Signature copied to clipboard!');
+    }).catch(err => {
+      alert('Failed to copy: ' + err);
+    });
+  }
+</script>
+</body>
+</html>
